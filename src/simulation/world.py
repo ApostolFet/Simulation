@@ -1,15 +1,13 @@
 from dataclasses import dataclass
 
 from simulation.entities import Entity
+from simulation.exceptions import EntityNotFoundError
 
 
 @dataclass(frozen=True)
 class Point:
     x: int
     y: int
-
-
-class EntityNotFoundError(Exception): ...
 
 
 class World:

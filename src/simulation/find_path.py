@@ -2,11 +2,9 @@ from copy import copy
 from typing import override
 
 from simulation.entities import Creature, Entity
+from simulation.exceptions import NotFindPathError
 from simulation.turns import FindPathStrategy
 from simulation.world import Point, World
-
-
-class NotFindPathError(Exception): ...
 
 
 class BfsFindPathStrategy(FindPathStrategy):
@@ -38,10 +36,13 @@ class BfsFindPathStrategy(FindPathStrategy):
     ) -> list[Point]:
         checked_point = copy(unreacheble_points)
         checked_point.remove(current_point)
+
         check_q: list[tuple[Point, list[Point]]] = [(current_point, [])]
+
         for check_point, path in check_q:
             if check_point in checked_point:
                 continue
+
             if closest_point(check_point, target_point):
                 return [*path, check_point]
 

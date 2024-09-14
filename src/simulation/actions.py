@@ -7,9 +7,6 @@ from simulation.turns import Turn
 from simulation.world import Point, World
 
 
-class TurnsNotFoundError(Exception): ...
-
-
 class Action(ABC):
     @abstractmethod
     def __call__(self, world: World) -> None: ...

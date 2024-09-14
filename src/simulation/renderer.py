@@ -23,7 +23,7 @@ class Renderer:
         for row in world_map:
             render_text += "".join(row) + "\n"
         clear()
-        print(render_text)  # noqa: T201
+        print(render_text)
 
 
 def clear() -> None:
