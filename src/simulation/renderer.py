@@ -14,18 +14,32 @@ class Renderer:
         self._entity_icons = entity_icons
         self._default_icon = default_icon
 
-    def render(self, world: World) -> None:
+    def render(self, world: World, turn: int) -> None:
         row = [self._default_icon] * world.width
         world_map = [copy(row) for _ in range(world.hight)]
-        for point, entity in world.get_all_entitys():
+
+        all_entitys = world.get_all_entitys()
+        count_entitys: dict[str, int] = {}
+
+        for point, entity in all_entitys:
             icon = self._entity_icons[type(entity)]
             world_map[point.y][point.x] = icon
 
-        render_text = ""
+            current_count = count_entitys.setdefault(icon, 0)
+            count_entitys[icon] = current_count + 1
+
+        render_world = ""
         for row in world_map:
-            render_text += "".join(row) + "\n"
+            render_world += "".join(row) + "\n"
+
+        render_statistic = "\n"
+        for icon, count in count_entitys.items():
+            render_statistic += f"{icon}: {count}\n"
+
         clear()
-        print(render_text)
+        print(render_world)
+        print(f"Turn: {turn}")
+        print(render_statistic)
 
 
 def clear() -> None:

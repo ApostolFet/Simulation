@@ -1,4 +1,5 @@
 import time
+from itertools import count
 
 from simulation.actions import Action
 from simulation.renderer import Renderer
@@ -21,8 +22,8 @@ class Simulation:
             init_action(self._world)
 
     def start(self) -> None:
-        while True:
-            self._renderer.render(self._world)
+        for turn in count(1):
+            self._renderer.render(self._world, turn)
             time.sleep(1)
             for turn_action in self._turn_actions:
                 turn_action(self._world)
