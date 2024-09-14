@@ -9,11 +9,13 @@ class Renderer:
     def __init__(
         self,
         entity_icons: dict[type[Entity], str],
+        default_icon: str,
     ):
         self._entity_icons = entity_icons
+        self._default_icon = default_icon
 
     def render(self, world: World) -> None:
-        row = [" "] * world.width
+        row = [self._default_icon] * world.width
         world_map = [copy(row) for _ in range(world.hight)]
         for point, entity in world.get_all_entitys():
             icon = self._entity_icons[type(entity)]

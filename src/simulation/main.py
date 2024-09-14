@@ -23,6 +23,7 @@ def main() -> None:
         Grass: "🌱",
         Tree: "🌳",
     }
+    default_icon = "🟫"
 
     find_path_strategy = BfsFindPathStrategy()
 
@@ -37,7 +38,7 @@ def main() -> None:
         SpawnRockAction(2),
     ]
     turn_actions: list[Action] = [TurnAction(turn_map)]
-    renderer = Renderer(entity_icon)
+    renderer = Renderer(entity_icon, default_icon)
     simulation = Simulation(20, 10, init_actions, turn_actions, renderer)
 
     try:
