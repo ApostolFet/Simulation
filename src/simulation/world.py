@@ -4,7 +4,7 @@ from simulation.entities import Entity
 from simulation.exceptions import EntityNotFoundError
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Point:
     x: int
     y: int

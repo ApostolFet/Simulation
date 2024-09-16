@@ -10,7 +10,9 @@ from simulation.actions import (
     TurnMap,
 )
 from simulation.entities import Entity, Grass, Herbivore, Predator, Rock, Tree
-from simulation.find_path import BfsFindPathStrategy
+from simulation.find_path import (
+    AStarFindPathStrategy,
+)
 from simulation.renderer import Renderer
 from simulation.turns import Attack, Eat, Move
 
@@ -25,21 +27,21 @@ def main() -> None:
     }
     default_icon = "🟫"
 
-    find_path_strategy = BfsFindPathStrategy()
+    find_path_strategy = AStarFindPathStrategy()
 
     turn_map = TurnMap()
     turn_map.add(Predator, [Move(find_path_strategy), Attack()])
     turn_map.add(Herbivore, [Move(find_path_strategy), Eat()])
     init_actions: list[Action] = [
-        SpawnHerbivoreAction(2),
-        SpawnPredatorAction(2),
-        SpawnTreeAction(2),
-        SpawnGrassAction(2),
-        SpawnRockAction(2),
+        SpawnHerbivoreAction(10),
+        SpawnPredatorAction(10),
+        SpawnTreeAction(10),
+        SpawnGrassAction(10),
+        SpawnRockAction(10),
     ]
     turn_actions: list[Action] = [TurnAction(turn_map)]
     renderer = Renderer(entity_icon, default_icon)
-    simulation = Simulation(20, 10, init_actions, turn_actions, renderer)
+    simulation = Simulation(50, 20, init_actions, turn_actions, renderer)
 
     try:
         simulation.start()
