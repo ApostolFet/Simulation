@@ -96,7 +96,3 @@ def main() -> None:
 
     controler = Controler(state)
     controler.get_user_status_game()
-
-
-if __name__ == "__main__":
-    main()
