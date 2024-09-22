@@ -3,6 +3,7 @@ from threading import Thread
 from simulation import Simulation
 from simulation.actions import (
     Action,
+    IntervalAction,
     SpawnGrassAction,
     SpawnHerbivoreAction,
     SpawnPredatorAction,
@@ -44,7 +45,12 @@ def main() -> None:
         SpawnGrassAction(10),
         SpawnRockAction(10),
     ]
-    turn_actions: list[Action] = [TurnAction(turn_map)]
+    interval_spawn_actions = [
+        IntervalAction(2, SpawnGrassAction(3)),
+        IntervalAction(3, SpawnHerbivoreAction(2)),
+    ]
+
+    turn_actions: list[Action] = [TurnAction(turn_map), *interval_spawn_actions]
     renderer = Renderer(entity_icon, default_icon)
 
     state = State()

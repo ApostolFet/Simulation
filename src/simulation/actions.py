@@ -3,7 +3,7 @@ from random import randrange
 from typing import Any, override
 
 from simulation.entities import Creature, Entity, Grass, Herbivore, Predator, Rock, Tree
-from simulation.exceptions import PointAlreadyUsedError
+from simulation.exceptions import EntityNotFoundError, PointAlreadyUsedError
 from simulation.turns import Turn
 from simulation.world import Point, World
 
@@ -65,6 +65,22 @@ class SpawnRockAction(SpawnAction):
         return Rock()
 
 
+class IntervalAction(Action):
+    def __init__(self, interval: int, action: Action) -> None:
+        self._interval = interval
+        self._action = action
+        self._count_executed = 0
+
+    @override
+    def __call__(self, world: World) -> None:
+        self._count_executed += 1
+        if self._is_execute_now():
+            self._action(world)
+
+    def _is_execute_now(self) -> bool:
+        return self._count_executed % self._interval == 0
+
+
 class TurnMap:
     def __init__(self) -> None:
         self._turns_creature: dict[type[Creature], list[Turn[Any]]] = {}
@@ -82,9 +98,9 @@ class TurnAction(Action):
 
     @override
     def __call__(self, world: World) -> None:
-        all_enititys = world.get_all_entitys()
+        all_enititys = world.get_entities(Creature)
         for _, entity in all_enititys:
-            if not isinstance(entity, Creature):
+            if self._is_entity_dead(entity, world):
                 continue
 
             turns = self._turn_map.get(type(entity))
@@ -92,3 +108,11 @@ class TurnAction(Action):
                 is_turn_end = turn(entity, world)
                 if is_turn_end:
                     break
+
+    def _is_entity_dead(self, entity: Entity, world: World) -> bool:
+        try:
+            world.get_entity_position(entity)
+        except EntityNotFoundError:
+            return True
+
+        return False
