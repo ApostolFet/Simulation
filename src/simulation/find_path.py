@@ -1,5 +1,4 @@
 import heapq
-from copy import copy
 from typing import override
 
 from simulation.entities import Creature, Entity
@@ -17,48 +16,36 @@ class BfsFindPathStrategy(FindPathStrategy):
         if target_point is None:
             return [current_point]
 
-        unreacheble_points = {point for point, _ in world.get_all_entitys()}
-        path = self.find_path(current_point, target_point, unreacheble_points)
+        path = self.find_path(current_point, target_point, world)
         return path
 
     def find_path(
         self,
         current_point: Point,
         target_point: Point,
-        unreacheble_points: set[Point],
+        world: World,
     ) -> list[Point]:
-        return self.bfs(current_point, target_point, unreacheble_points)
-
-    def bfs(
-        self,
-        current_point: Point,
-        target_point: Point,
-        unreacheble_points: set[Point],
-    ) -> list[Point]:
-        checked_point = copy(unreacheble_points)
-        checked_point.remove(current_point)
+        checked_point: set[Point] = set()
 
         check_q: list[tuple[Point, list[Point]]] = [(current_point, [])]
-        check_count = 0
 
         for check_point, path in check_q:
             if check_point in checked_point:
                 continue
 
-            check_count += 1
-            if closest_point(check_point, target_point):
+            if is_closest_point(check_point, target_point):
                 return [*path, check_point]
 
             checked_point.add(check_point)
             closest_points = get_closest_points(check_point)
 
             for point in closest_points:
-                check_q.append((point, [*path, check_point]))  # noqa: PERF401
+                if point not in world or world.is_used(point):
+                    continue
 
-        raise NotFindPathError(
-            f"Path not find from {current_point} to {target_point}, "
-            f"unreacheble_points: {unreacheble_points}"
-        )
+                check_q.append((point, [*path, check_point]))
+
+        raise NotFindPathError(f"Path not find from {current_point} to {target_point}")
 
 
 class AStarFindPathStrategy(FindPathStrategy):
@@ -70,26 +57,16 @@ class AStarFindPathStrategy(FindPathStrategy):
         if target_point is None:
             return [current_point]
 
-        unreacheble_points = {point for point, _ in world.get_all_entitys()}
-        path = self.find_path(current_point, target_point, unreacheble_points)
+        path = self.find_path(current_point, target_point, world)
         return path
 
     def find_path(
         self,
         current_point: Point,
         target_point: Point,
-        unreacheble_points: set[Point],
+        world: World,
     ) -> list[Point]:
-        return self.a_star(current_point, target_point, unreacheble_points)
-
-    def a_star(
-        self,
-        current_point: Point,
-        target_point: Point,
-        unreacheble_points: set[Point],
-    ) -> list[Point]:
-        checked_points = copy(unreacheble_points)
-        checked_points.remove(current_point)
+        checked_points: set[Point] = set()
         heap: list[tuple[int, Point, list[Point]]] = [(1, current_point, [])]
 
         while heap:
@@ -97,21 +74,21 @@ class AStarFindPathStrategy(FindPathStrategy):
             if check_point in checked_points:
                 continue
 
-            if closest_point(check_point, target_point):
+            if is_closest_point(check_point, target_point):
                 return [*path, check_point]
 
             checked_points.add(check_point)
             closest_points = get_closest_points(check_point)
 
             for point in closest_points:
+                if point not in world or world.is_used(point):
+                    continue
+
                 point_path = [*path, check_point]
                 distance = get_distance(point, target_point)
                 heapq.heappush(heap, (len(point_path) + distance, point, point_path))
 
-        raise NotFindPathError(
-            f"Path not find from {current_point} to {target_point}, "
-            f"unreacheble_points: {unreacheble_points}"
-        )
+        raise NotFindPathError(f"Path not find from {current_point} to {target_point}")
 
 
 def get_distance(current_point: Point, target_point: Point) -> int:
@@ -132,7 +109,7 @@ def get_closest_points(current: Point) -> list[Point]:
     ]
 
 
-def closest_point(current: Point, target: Point) -> bool:
+def is_closest_point(current: Point, target: Point) -> bool:
     y_distance = abs(current.y - target.y)
     x_distance = abs(current.x - target.x)
     return not (y_distance > 1 or x_distance > 1)

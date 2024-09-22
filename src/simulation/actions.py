@@ -3,6 +3,7 @@ from random import randrange
 from typing import Any, override
 
 from simulation.entities import Creature, Entity, Grass, Herbivore, Predator, Rock, Tree
+from simulation.exceptions import PointAlreadyUsedError
 from simulation.turns import Turn
 from simulation.world import Point, World
 
@@ -18,11 +19,17 @@ class SpawnAction(Action):
 
     @override
     def __call__(self, world: World) -> None:
-        for _ in range(self._count_entity):
+        count_spawned_entity = 0
+        while count_spawned_entity < self._count_entity:
             entity = self.spawn_entity()
             x = randrange(0, world.width)
             y = randrange(0, world.hight)
-            world.add_entity(Point(x, y), entity)
+            try:
+                world.add_entity(Point(x, y), entity)
+            except PointAlreadyUsedError:
+                continue
+
+            count_spawned_entity += 1
 
     @abstractmethod
     def spawn_entity(self) -> Entity: ...
