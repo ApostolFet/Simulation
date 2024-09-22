@@ -15,6 +15,9 @@ license = {text = "MIT License"}
 classifiers = [
     "Programming Language :: Python :: 3",
 ]
+dependencies = [
+  "adaptix==3.0.0b8",
+]
 
 
 [project.optional-dependencies]
@@ -52,7 +55,8 @@ ignore = [
   "RSE102",
   "RET504",
   "ISC001",
-  "COM812"
+  "COM812",
+  "TCH003"
 ]
 
 

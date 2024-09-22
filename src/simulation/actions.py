@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from random import randrange
-from typing import Any, override
+from typing import Any, Protocol, override
 
-from simulation.entities import Creature, Entity, Grass, Herbivore, Predator, Rock, Tree
+from simulation.entities import Creature, Entity
 from simulation.exceptions import EntityNotFoundError, PointAlreadyUsedError
 from simulation.turns import Turn
 from simulation.world import Point, World
@@ -13,15 +13,20 @@ class Action(ABC):
     def __call__(self, world: World) -> None: ...
 
 
+class EntityFactory(Protocol):
+    def spawn_entity(self) -> Entity: ...
+
+
 class SpawnAction(Action):
-    def __init__(self, count_entity: int):
+    def __init__(self, count_entity: int, factory_entity: EntityFactory):
         self._count_entity = count_entity
+        self._factory_entity = factory_entity
 
     @override
     def __call__(self, world: World) -> None:
         count_spawned_entity = 0
         while count_spawned_entity < self._count_entity:
-            entity = self.spawn_entity()
+            entity = self._factory_entity.spawn_entity()
             x = randrange(0, world.width)
             y = randrange(0, world.hight)
             try:
@@ -30,39 +35,6 @@ class SpawnAction(Action):
                 continue
 
             count_spawned_entity += 1
-
-    @abstractmethod
-    def spawn_entity(self) -> Entity: ...
-
-
-class SpawnHerbivoreAction(SpawnAction):
-    @override
-    def spawn_entity(self) -> Herbivore:
-        return Herbivore(hp=100, speed=2, visual_radius=10)
-
-
-class SpawnPredatorAction(SpawnAction):
-    @override
-    def spawn_entity(self) -> Predator:
-        return Predator(hp=100, speed=2, power=50, visual_radius=10)
-
-
-class SpawnTreeAction(SpawnAction):
-    @override
-    def spawn_entity(self) -> Tree:
-        return Tree()
-
-
-class SpawnGrassAction(SpawnAction):
-    @override
-    def spawn_entity(self) -> Grass:
-        return Grass()
-
-
-class SpawnRockAction(SpawnAction):
-    @override
-    def spawn_entity(self) -> Rock:
-        return Rock()
 
 
 class IntervalAction(Action):

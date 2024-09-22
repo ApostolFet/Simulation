@@ -1,19 +1,24 @@
+from pathlib import Path
 from threading import Thread
 
 from simulation import Simulation
 from simulation.actions import (
     Action,
     IntervalAction,
-    SpawnGrassAction,
-    SpawnHerbivoreAction,
-    SpawnPredatorAction,
-    SpawnRockAction,
-    SpawnTreeAction,
+    SpawnAction,
     TurnAction,
     TurnMap,
 )
+from simulation.config import load_config
 from simulation.controler import Controler
 from simulation.entities import Entity, Grass, Herbivore, Predator, Rock, Tree
+from simulation.factory import (
+    GrassFactory,
+    HerbivoreFactory,
+    PredatorFactory,
+    RockFactory,
+    TreeFactory,
+)
 from simulation.find_path import (
     AStarFindPathStrategy,
 )
@@ -24,44 +29,72 @@ from simulation.world import World
 
 
 def main() -> None:
+    try:
+        config = load_config(Path("config.toml"))
+    except FileNotFoundError:
+        config = load_config(Path("config.example.toml"))
+
     entity_icon: dict[type[Entity], str] = {
-        Predator: "🐯",
-        Herbivore: "🦓",
-        Rock: "🪨",
-        Grass: "🌱",
-        Tree: "🌳",
+        Predator: config.icon.predator,
+        Herbivore: config.icon.herbivore,
+        Rock: config.icon.rock,
+        Grass: config.icon.grass,
+        Tree: config.icon.tree,
     }
-    default_icon = "🟫"
+    default_icon = config.icon.default
+    renderer = Renderer(entity_icon, default_icon)
 
     find_path_strategy = AStarFindPathStrategy()
 
     turn_map = TurnMap()
     turn_map.add(Predator, [Move(find_path_strategy), Attack()])
     turn_map.add(Herbivore, [Move(find_path_strategy), Eat()])
-    init_actions: list[Action] = [
-        SpawnHerbivoreAction(10),
-        SpawnPredatorAction(10),
-        SpawnTreeAction(10),
-        SpawnGrassAction(10),
-        SpawnRockAction(10),
-    ]
+
+    grass_factory = GrassFactory()
+    herbivore_factory = HerbivoreFactory(config.entity.herbivore)
+
+    interval_config = config.spawn.interval
     interval_spawn_actions = [
-        IntervalAction(2, SpawnGrassAction(3)),
-        IntervalAction(3, SpawnHerbivoreAction(2)),
+        IntervalAction(
+            interval_config.grass.interval,
+            SpawnAction(
+                interval_config.grass.count,
+                grass_factory,
+            ),
+        ),
+        IntervalAction(
+            interval_config.herbivore.interval,
+            SpawnAction(
+                interval_config.herbivore.count,
+                herbivore_factory,
+            ),
+        ),
     ]
 
     turn_actions: list[Action] = [TurnAction(turn_map), *interval_spawn_actions]
-    renderer = Renderer(entity_icon, default_icon)
+
+    predator_factory = PredatorFactory(config.entity.predator)
+    tree_factory = TreeFactory()
+    rock_factory = RockFactory()
+
+    init_config = config.spawn.init
+    init_actions: list[Action] = [
+        SpawnAction(init_config.predator, predator_factory),
+        SpawnAction(init_config.tree, tree_factory),
+        SpawnAction(init_config.rock, rock_factory),
+        SpawnAction(init_config.grass, grass_factory),
+        SpawnAction(init_config.herbivore, herbivore_factory),
+    ]
 
     state = State()
 
-    controler = Controler(state)
-    world = World(50, 20)
+    world = World(config.world.width, config.world.hight)
     simulation = Simulation(world, init_actions, turn_actions, renderer, state)
 
     thread = Thread(target=simulation.start)
     thread.start()
 
+    controler = Controler(state)
     controler.get_user_status_game()
 
 
