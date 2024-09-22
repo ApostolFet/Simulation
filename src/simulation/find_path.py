@@ -1,7 +1,6 @@
 import heapq
 from typing import override
 
-from simulation.entities import Creature, Entity
 from simulation.exceptions import NotFindPathError
 from simulation.turns import FindPathStrategy
 from simulation.world import Point, World
@@ -9,21 +8,7 @@ from simulation.world import Point, World
 
 class BfsFindPathStrategy(FindPathStrategy):
     @override
-    def __call__(self, entity: Creature, world: World) -> list[Point]:
-        current_point = world.get_entity_position(entity)
-        target_entitys = world.get_entities(entity.target)
-        target_point = find_closest_point_entity(
-            current_point,
-            target_entitys,
-            entity.visual_radius,
-        )
-        if target_point is None:
-            return [current_point]
-
-        path = self.find_path(current_point, target_point, world)
-        return path
-
-    def find_path(
+    def __call__(
         self,
         current_point: Point,
         target_point: Point,
@@ -54,21 +39,7 @@ class BfsFindPathStrategy(FindPathStrategy):
 
 class AStarFindPathStrategy(FindPathStrategy):
     @override
-    def __call__(self, entity: Creature, world: World) -> list[Point]:
-        current_point = world.get_entity_position(entity)
-        target_entitys = world.get_entities(entity.target)
-        target_point = find_closest_point_entity(
-            current_point,
-            target_entitys,
-            entity.visual_radius,
-        )
-        if target_point is None:
-            return [current_point]
-
-        path = self.find_path(current_point, target_point, world)
-        return path
-
-    def find_path(
+    def __call__(
         self,
         current_point: Point,
         target_point: Point,
@@ -121,20 +92,3 @@ def is_closest_point(current: Point, target: Point) -> bool:
     y_distance = abs(current.y - target.y)
     x_distance = abs(current.x - target.x)
     return not (y_distance > 1 or x_distance > 1)
-
-
-def find_closest_point_entity(
-    current_point: Point,
-    entitys_position: list[tuple[Point, Entity]],
-    max_path: float = float("inf"),
-) -> Point | None:
-    result_point = None
-    for point, _ in entitys_position:
-        y_distance = abs(point.y - current_point.y)
-        x_distance = abs(point.x - current_point.x)
-        current_path = y_distance + x_distance
-        if max_path > current_path:
-            max_path = current_path
-            result_point = point
-
-    return result_point
