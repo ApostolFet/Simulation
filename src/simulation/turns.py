@@ -1,3 +1,4 @@
+import random
 from abc import abstractmethod
 from typing import Protocol, override
 
@@ -27,19 +28,22 @@ class Move(Turn[Creature]):
     def __call__(self, entity: Creature, world: World) -> bool:
         current_point = world.get_entity_position(entity)
         target_entitys = world.get_entities(entity.target)
+
         target_point = find_closest_point_entity(
             current_point,
             target_entitys,
             entity.visual_radius,
         )
+
         if target_point is None:
-            path = [current_point]
-        else:
-            path = self._find_path(current_point, target_point, world)
+            target_point = get_random_near_points(current_point, entity.speed, world)
+
+        path = self._find_path(current_point, target_point, world)
 
         if len(path) <= entity.speed:
             world.add_entity(path[-1], entity)
             return False
+
         world.add_entity(path[entity.speed], entity)
         return True
 
@@ -92,13 +96,13 @@ def find_near_entity[
     T: Entity
 ](current_point: Point, entities_position: list[tuple[Point, T]]) -> T | None:
     for point, entity in entities_position:
-        if closest_point(current_point, point):
+        if is_closest_point(current_point, point):
             return entity
 
     return None
 
 
-def closest_point(current: Point, target: Point) -> bool:
+def is_closest_point(current: Point, target: Point) -> bool:
     y_distance = abs(current.y - target.y)
     x_distance = abs(current.x - target.x)
     return not (y_distance > 1 or x_distance > 1)
@@ -119,3 +123,29 @@ def find_closest_point_entity(
             result_point = point
 
     return result_point
+
+
+def get_random_near_points(
+    current_point: Point,
+    radius: int,
+    world: World,
+) -> Point:
+    near_points = get_closest_points(current_point, radius)
+    near_points = [
+        point for point in near_points if point in world and not world.is_used(point)
+    ]
+    return random.choice(near_points)
+
+
+def get_closest_points(current: Point, radius: int) -> list[Point]:
+    closest_points: list[Point] = []
+
+    for i in range(1, radius + 1):
+        closest_points.append(Point(current.x - i, current.y))
+        closest_points.append(Point(current.x + i, current.y))
+        closest_points.append(Point(current.x, current.y + i))
+        closest_points.append(Point(current.x, current.y - i))
+        closest_points.append(Point(current.x - i, current.y - i))
+        closest_points.append(Point(current.x + i, current.y + i))
+
+    return closest_points
