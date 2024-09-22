@@ -12,7 +12,11 @@ class BfsFindPathStrategy(FindPathStrategy):
     def __call__(self, entity: Creature, world: World) -> list[Point]:
         current_point = world.get_entity_position(entity)
         target_entitys = world.get_entities(entity.target)
-        target_point = find_closest_point_entity(current_point, target_entitys)
+        target_point = find_closest_point_entity(
+            current_point,
+            target_entitys,
+            entity.visual_radius,
+        )
         if target_point is None:
             return [current_point]
 
@@ -53,7 +57,11 @@ class AStarFindPathStrategy(FindPathStrategy):
     def __call__(self, entity: Creature, world: World) -> list[Point]:
         current_point = world.get_entity_position(entity)
         target_entitys = world.get_entities(entity.target)
-        target_point = find_closest_point_entity(current_point, target_entitys)
+        target_point = find_closest_point_entity(
+            current_point,
+            target_entitys,
+            entity.visual_radius,
+        )
         if target_point is None:
             return [current_point]
 
@@ -116,9 +124,10 @@ def is_closest_point(current: Point, target: Point) -> bool:
 
 
 def find_closest_point_entity(
-    current_point: Point, entitys_position: list[tuple[Point, Entity]]
+    current_point: Point,
+    entitys_position: list[tuple[Point, Entity]],
+    max_path: float = float("inf"),
 ) -> Point | None:
-    max_path = float("inf")
     result_point = None
     for point, _ in entitys_position:
         y_distance = abs(point.y - current_point.y)

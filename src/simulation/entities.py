@@ -9,6 +9,7 @@ class Creature(Entity):
     hp: int
     speed: int
     target: type[Entity]
+    visual_radius: int
 
 
 @dataclass(eq=False)
