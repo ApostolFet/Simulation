@@ -38,13 +38,13 @@ class SpawnAction(Action):
 class SpawnHerbivoreAction(SpawnAction):
     @override
     def spawn_entity(self) -> Herbivore:
-        return Herbivore(hp=100, speed=2, target=Grass, visual_radius=10)
+        return Herbivore(hp=100, speed=2, visual_radius=10)
 
 
 class SpawnPredatorAction(SpawnAction):
     @override
     def spawn_entity(self) -> Predator:
-        return Predator(hp=100, speed=2, target=Herbivore, power=50, visual_radius=10)
+        return Predator(hp=100, speed=2, power=50, visual_radius=10)
 
 
 class SpawnTreeAction(SpawnAction):
