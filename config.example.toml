@@ -1,0 +1,41 @@
+[world]
+width = 50
+hight = 20
+
+
+[entity.herbivore]
+hp = 100
+speed = 3
+visual_radius = 10
+
+[entity.predator]
+hp = 100
+speed = 2
+visual_radius = 10
+power = 50
+
+
+[spawn.init]
+predator = 10
+herbivore = 10
+tree = 10
+grass = 10
+rock = 10
+
+
+[spawn.interval.herbivore]
+interval = 3
+count = 2
+
+
+[spawn.interval.grass]
+interval = 2
+count = 3
+
+[icon]
+predator = "🐯"
+herbivore = "🦓"
+rock = "🪨"
+grass = "🌱"
+tree = "🌳"
+default = "🟫"
