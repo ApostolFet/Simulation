@@ -25,6 +25,7 @@ class Simulation:
             init_action(self._world)
 
     def start(self) -> None:
+        self._renderer.clear_frame()
         while True:
             match self._state.status:
                 case Status.start:

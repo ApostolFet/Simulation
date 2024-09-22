@@ -55,6 +55,9 @@ class Renderer:
         clear_lines(1)
         print("Enter s - to start, q - to quit: \r")
 
+    def clear_frame(self) -> None:
+        clear()
+
 
 def clear() -> None:
     if os.name == "nt":  # For Windows
