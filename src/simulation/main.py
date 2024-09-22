@@ -1,3 +1,5 @@
+from threading import Thread
+
 from simulation import Simulation
 from simulation.actions import (
     Action,
@@ -9,12 +11,15 @@ from simulation.actions import (
     TurnAction,
     TurnMap,
 )
+from simulation.controler import Controler
 from simulation.entities import Entity, Grass, Herbivore, Predator, Rock, Tree
 from simulation.find_path import (
     AStarFindPathStrategy,
 )
 from simulation.renderer import Renderer
+from simulation.state import State
 from simulation.turns import Attack, Eat, Move
+from simulation.world import World
 
 
 def main() -> None:
@@ -41,12 +46,17 @@ def main() -> None:
     ]
     turn_actions: list[Action] = [TurnAction(turn_map)]
     renderer = Renderer(entity_icon, default_icon)
-    simulation = Simulation(50, 20, init_actions, turn_actions, renderer)
 
-    try:
-        simulation.start()
-    except KeyboardInterrupt:
-        print("\rСимуляция завершена")  # noqa: T201
+    state = State()
+
+    controler = Controler(state)
+    world = World(50, 20)
+    simulation = Simulation(world, init_actions, turn_actions, renderer, state)
+
+    thread = Thread(target=simulation.start)
+    thread.start()
+
+    controler.get_user_status_game()
 
 
 if __name__ == "__main__":

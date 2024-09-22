@@ -1,4 +1,5 @@
 import os
+import sys
 from copy import copy
 
 from simulation.entities import Entity
@@ -28,18 +29,31 @@ class Renderer:
             current_count = count_entitys.setdefault(icon, 0)
             count_entitys[icon] = current_count + 1
 
+        lines_render = 0
         render_world = ""
         for row in world_map:
+            lines_render += 1
             render_world += "".join(row) + "\n"
 
         render_statistic = "\n"
         for icon, count in count_entitys.items():
+            lines_render += 1
             render_statistic += f"{icon}: {count}\n"
 
-        clear()
+        cli_lines = 10
+
+        clear_lines(lines_render + cli_lines)
         print(render_world)
         print(f"Turn: {turn}")
         print(render_statistic)
+        print("Enter p - to pause, q - to quit: \r")
+
+    def stop_game(self) -> None:
+        print("\rSimulation finished")
+
+    def pause_game(self) -> None:
+        clear_lines(1)
+        print("Enter s - to start, q - to quit: \r")
 
 
 def clear() -> None:
@@ -47,3 +61,12 @@ def clear() -> None:
         os.system("cls")
     else:  # For Linux and MacOS
         os.system("clear")
+
+
+def clear_lines(n: int) -> None:
+    cursor_up = "\x1b[A"
+    erase_line = "\x1b[K"
+
+    for _ in range(n):
+        sys.stdout.write(cursor_up)
+        sys.stdout.write(erase_line)
