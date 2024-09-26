@@ -23,7 +23,7 @@ class World:
             return False
         return point.x < self.width and point.y < self.hight
 
-    def add_entity(self, point: Point, entity: Entity) -> None:
+    def add(self, point: Point, entity: Entity) -> None:
         current_point = self._map.get(entity)
         if current_point == point:
             return
@@ -53,7 +53,7 @@ class World:
             if isinstance(entity, entity_type)
         ]
 
-    def remove_entity(self, entity: Entity) -> None:
+    def remove(self, entity: Entity) -> None:
         current_point = self._map.get(entity)
         del self._map[entity]
 

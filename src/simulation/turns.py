@@ -19,16 +19,22 @@ class Turn[T: Creature](Protocol):
     @abstractmethod
     def __call__(self, entity: T, world: World) -> bool: ...
 
+    @abstractmethod
+    def undo(self, entity: T, world: World) -> None: ...
+
 
 class Move(Turn[Creature]):
     def __init__(self, find_path_strategy: FindPathStrategy) -> None:
         self._find_path = find_path_strategy
 
+        self._start_point: Point | None = None
+
     @override
     def __call__(self, entity: Creature, world: World) -> bool:
         current_point = world.get_entity_position(entity)
-        target_entitys = world.get_entities(entity.target)
+        self._start_point = current_point
 
+        target_entitys = world.get_entities(entity.target)
         target_point = find_closest_point_entity(
             current_point,
             target_entitys,
@@ -41,39 +47,78 @@ class Move(Turn[Creature]):
         path = self._find_path(current_point, target_point, world)
 
         if len(path) <= entity.speed:
-            world.add_entity(path[-1], entity)
+            world.add(path[-1], entity)
             return False
 
-        world.add_entity(path[entity.speed], entity)
+        world.add(path[entity.speed], entity)
         return True
+
+    @override
+    def undo(self, entity: Creature, world: World) -> None:
+        if self._start_point is not None:
+            world.add(self._start_point, entity)
 
 
 class Attack(Turn[Predator]):
+    def __init__(self) -> None:
+        self._attacked_creature: tuple[Point, Creature] | None = None
+
     @override
     def __call__(self, entity: Predator, world: World) -> bool:
+        self._attacked_creature = None
+
         target_entitys = world.get_entities(Herbivore)
         entity_point = world.get_entity_position(entity)
-        closest_entity = find_near_entity(entity_point, target_entitys)
-        if closest_entity is None:
+
+        closest_entity_result = find_near_entity(entity_point, target_entitys)
+
+        if closest_entity_result is None:
             return False
+
+        closest_entity, closest_entity_point = closest_entity_result
+        self._attacked_creature = (closest_entity_point, closest_entity)
 
         closest_entity.hp -= entity.power
         if closest_entity.hp < 0:
-            world.remove_entity(closest_entity)
+            world.remove(closest_entity)
         return True
+
+    @override
+    def undo(self, entity: Predator, world: World) -> None:
+        if self._attacked_creature is None:
+            return
+
+        closest_entity = self._attacked_creature[1]
+        closest_entity.hp += entity.power
+        if closest_entity.hp > 0:
+            world.add(*self._attacked_creature)
 
 
 class Eat(Turn[Herbivore]):
+    def __init__(self) -> None:
+        self._eated_entity: tuple[Point, Entity] | None = None
+
     @override
     def __call__(self, entity: Herbivore, world: World) -> bool:
+        self._eated_entity = None
+
         target_entitys: list[tuple[Point, Entity]] = world.get_entities(Grass)
         entity_point = world.get_entity_position(entity)
-        closest_entity = find_near_entity(entity_point, target_entitys)
-        if closest_entity is None:
+        closest_entity_result = find_near_entity(entity_point, target_entitys)
+        if closest_entity_result is None:
             return False
+        closest_entity, closest_entity_point = closest_entity_result
+        self._eated_entity = (closest_entity_point, closest_entity)
 
-        world.remove_entity(closest_entity)
+        world.remove(closest_entity)
         return True
+
+    @override
+    def undo(self, entity: Herbivore, world: World) -> None:
+        if self._eated_entity is None:
+            return
+
+        world.add(*self._eated_entity)
 
 
 def find_closest_entity(
@@ -94,10 +139,15 @@ def find_closest_entity(
 
 def find_near_entity[
     T: Entity
-](current_point: Point, entities_position: list[tuple[Point, T]]) -> T | None:
+](
+    current_point: Point,
+    entities_position: list[tuple[Point, T]],
+) -> (
+    tuple[T, Point] | None
+):
     for point, entity in entities_position:
         if is_closest_point(current_point, point):
-            return entity
+            return entity, point
 
     return None
 

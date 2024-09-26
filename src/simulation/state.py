@@ -6,6 +6,7 @@ class Status(Enum):
     start = auto()
     pause = auto()
     stop = auto()
+    back = auto()
 
 
 @dataclass

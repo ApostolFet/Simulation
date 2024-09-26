@@ -23,3 +23,5 @@ class Controler:
             elif result == "q":
                 self._state.status = Status.stop
                 break
+            elif result == "b":
+                self._state.status = Status.back
