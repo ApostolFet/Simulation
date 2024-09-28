@@ -17,7 +17,12 @@ class FindPathStrategy(Protocol):
 
 class Turn[T: Creature](Protocol):
     @abstractmethod
-    def __call__(self, entity: T, world: World) -> bool: ...
+    def __call__(self, entity: T, world: World) -> bool:
+        """A creature's turn.
+
+        The turn determines whether or not the creature completes the turn.
+        True - completes, False - continues
+        """
 
     @abstractmethod
     def undo(self, entity: T, world: World) -> None: ...
@@ -59,14 +64,39 @@ class Move(Turn[Creature]):
             world.add(self._start_point, entity)
 
 
+class Starve(Turn[Creature]):
+    def __init__(self, power: int) -> None:
+        self._power = power
+        self._starving_creature: tuple[Point, Creature] | None = None
+
+    @override
+    def __call__(self, entity: Creature, world: World) -> bool:
+        entity.hp -= self._power
+
+        entity_point = world.get_entity_position(entity)
+        self._starving_creature = entity_point, entity
+        if entity.hp <= 0:
+            world.remove(entity)
+            return True
+        return False
+
+    @override
+    def undo(self, entity: Creature, world: World) -> None:
+        if self._starving_creature is None:
+            return
+
+        starving_creature = self._starving_creature[1]
+        starving_creature.hp += self._power
+        if starving_creature.hp > 0:
+            world.add(*self._starving_creature)
+
+
 class Attack(Turn[Predator]):
     def __init__(self) -> None:
         self._attacked_creature: tuple[Point, Creature] | None = None
 
     @override
     def __call__(self, entity: Predator, world: World) -> bool:
-        self._attacked_creature = None
-
         target_entitys = world.get_entities(Herbivore)
         entity_point = world.get_entity_position(entity)
 
@@ -100,8 +130,6 @@ class Eat(Turn[Herbivore]):
 
     @override
     def __call__(self, entity: Herbivore, world: World) -> bool:
-        self._eated_entity = None
-
         target_entitys: list[tuple[Point, Entity]] = world.get_entities(Grass)
         entity_point = world.get_entity_position(entity)
         closest_entity_result = find_near_entity(entity_point, target_entitys)

@@ -32,6 +32,9 @@ count = 2
 interval = 2
 count = 3
 
+[starve]
+power = 15
+
 [icon]
 predator = "🐯"
 herbivore = "🦓"

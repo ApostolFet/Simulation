@@ -24,7 +24,7 @@ from simulation.find_path import (
 )
 from simulation.renderer import Renderer
 from simulation.state import State
-from simulation.turns import Attack, Eat, Move
+from simulation.turns import Attack, Eat, Move, Starve
 from simulation.world import World
 
 
@@ -45,10 +45,13 @@ def main() -> None:
     renderer = Renderer(entity_icon, default_icon)
 
     find_path_strategy = AStarFindPathStrategy()
+    move = Move(find_path_strategy)
+
+    starve = Starve(config.starve.power)
 
     turn_map = TurnMap()
-    turn_map.add(Predator, [Move(find_path_strategy), Attack()])
-    turn_map.add(Herbivore, [Move(find_path_strategy), Eat()])
+    turn_map.add(Predator, [starve, move, Attack()])
+    turn_map.add(Herbivore, [starve, move, Eat()])
 
     grass_factory = GrassFactory()
     herbivore_factory = HerbivoreFactory(config.entity.herbivore)

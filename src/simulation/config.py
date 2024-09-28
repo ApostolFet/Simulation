@@ -15,6 +15,7 @@ class Config:
     entity: EntityConfig
     spawn: SpawnConfig
     icon: IconConfig
+    starve: StarveConfig
 
 
 @dataclass
@@ -79,6 +80,11 @@ class IconConfig:
     grass: str
     rock: str
     default: str
+
+
+@dataclass
+class StarveConfig:
+    power: int
 
 
 def load_config(path: Path) -> Config:

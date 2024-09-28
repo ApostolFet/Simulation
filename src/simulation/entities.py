@@ -21,6 +21,13 @@ class Creature(Entity):
     visual_radius: int
     target: ClassVar[type[Entity]]
 
+    def __post__init__(self) -> None:
+        self._max_hp = self.hp
+
+    @property
+    def max_hp(self) -> int:
+        return self._max_hp
+
 
 @dataclass(eq=False)
 class Herbivore(Creature):
