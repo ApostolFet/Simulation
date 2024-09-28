@@ -1,4 +1,3 @@
-
 ![Simulation Logo](/docs/logo.jpg)
 
 
