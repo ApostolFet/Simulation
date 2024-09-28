@@ -28,6 +28,7 @@ class WorldConfig:
 class EntityConfig:
     herbivore: HerbivoreConfig
     predator: PredatorConfig
+    grass: GrassConfig
 
 
 @dataclass
@@ -35,6 +36,12 @@ class HerbivoreConfig:
     hp = 100
     speed = 3
     visual_radius = 10
+    nutritional_quality: int
+
+
+@dataclass
+class GrassConfig:
+    nutritional_quality: int
 
 
 @dataclass
@@ -64,6 +71,7 @@ class SpawnInitConfig:
 class SpawnIntervalConfig:
     herbivore: SpawnInterval
     grass: SpawnInterval
+    predator: SpawnInterval
 
 
 @dataclass

@@ -7,6 +7,10 @@ hight = 20
 hp = 100
 speed = 3
 visual_radius = 10
+nutritional_quality = 40
+
+[entity.grass]
+nutritional_quality = 15
 
 [entity.predator]
 hp = 100
@@ -32,8 +36,12 @@ count = 2
 interval = 2
 count = 3
 
+[spawn.interval.predator]
+interval = 3
+count = 2
+
 [starve]
-power = 15
+power = 10
 
 [icon]
 predator = "🐯"

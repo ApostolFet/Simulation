@@ -109,7 +109,7 @@ class TurnAction(Action):
 
         all_enititys = world.get_entities(Creature)
         for _, entity in all_enititys:
-            if self._is_entity_dead(entity, world):
+            if self._is_dead(entity, world):
                 continue
 
             turns = self._turn_map.get(type(entity))
@@ -125,9 +125,12 @@ class TurnAction(Action):
             turn.undo(entity, world)
         self._executed_turns = []
 
-    def _is_entity_dead(self, entity: Entity, world: World) -> bool:
+    def _is_dead(self, creature: Creature, world: World) -> bool:
+        if creature.hp <= 0:
+            return True
+
         try:
-            world.get_entity_position(entity)
+            world.get_entity_position(creature)
         except EntityNotFoundError:
             return True
 

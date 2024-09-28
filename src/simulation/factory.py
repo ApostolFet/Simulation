@@ -1,7 +1,7 @@
 from typing import override
 
 from simulation.actions import EntityFactory
-from simulation.config import HerbivoreConfig, PredatorConfig
+from simulation.config import GrassConfig, HerbivoreConfig, PredatorConfig
 from simulation.entities import Grass, Herbivore, Predator, Rock, Tree
 
 
@@ -13,6 +13,7 @@ class HerbivoreFactory(EntityFactory):
         self._hp = herbivore_config.hp
         self._speed = herbivore_config.speed
         self._visual_radius = herbivore_config.visual_radius
+        self._nutritional_quality = herbivore_config.nutritional_quality
 
     @override
     def spawn_entity(self) -> Herbivore:
@@ -20,6 +21,7 @@ class HerbivoreFactory(EntityFactory):
             hp=self._hp,
             speed=self._speed,
             visual_radius=self._visual_radius,
+            nutritional_quality=self._nutritional_quality,
         )
 
 
@@ -50,9 +52,15 @@ class TreeFactory(EntityFactory):
 
 
 class GrassFactory(EntityFactory):
+    def __init__(
+        self,
+        grass_config: GrassConfig,
+    ) -> None:
+        self._nutritional_quality = grass_config.nutritional_quality
+
     @override
     def spawn_entity(self) -> Grass:
-        return Grass()
+        return Grass(self._nutritional_quality)
 
 
 class RockFactory(EntityFactory):

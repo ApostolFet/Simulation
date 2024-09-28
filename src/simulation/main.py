@@ -44,17 +44,19 @@ def main() -> None:
     default_icon = config.icon.default
     renderer = Renderer(entity_icon, default_icon)
 
+    eat = Eat()
+    starve = Starve(config.starve.power)
+
     find_path_strategy = AStarFindPathStrategy()
     move = Move(find_path_strategy)
 
-    starve = Starve(config.starve.power)
-
     turn_map = TurnMap()
-    turn_map.add(Predator, [starve, move, Attack()])
-    turn_map.add(Herbivore, [starve, move, Eat()])
+    turn_map.add(Predator, [starve, move, Attack(), eat])
+    turn_map.add(Herbivore, [starve, move, eat])
 
-    grass_factory = GrassFactory()
+    grass_factory = GrassFactory(config.entity.grass)
     herbivore_factory = HerbivoreFactory(config.entity.herbivore)
+    predator_factory = PredatorFactory(config.entity.predator)
 
     interval_config = config.spawn.interval
     interval_spawn_actions = [
@@ -72,11 +74,17 @@ def main() -> None:
                 herbivore_factory,
             ),
         ),
+        IntervalAction(
+            interval_config.predator.interval,
+            SpawnAction(
+                interval_config.predator.count,
+                predator_factory,
+            ),
+        ),
     ]
 
     turn_actions: list[Action] = [TurnAction(turn_map), *interval_spawn_actions]
 
-    predator_factory = PredatorFactory(config.entity.predator)
     tree_factory = TreeFactory()
     rock_factory = RockFactory()
 
