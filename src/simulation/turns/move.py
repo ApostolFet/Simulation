@@ -2,6 +2,7 @@ import random
 from typing import Protocol, override
 
 from simulation.entities import Creature
+from simulation.exceptions import NotFindPathError
 from simulation.points import Point, find_closest_point_entity, get_closest_points
 from simulation.turns.base import Turn
 from simulation.world import World
@@ -13,7 +14,11 @@ class FindPathStrategy(Protocol):
         current_point: Point,
         target_point: Point,
         world: World,
-    ) -> list[Point]: ...
+    ) -> list[Point]:
+        """Algorithm for finding the shortest path to a given point in the world
+        Raises NotFindPathError  if there is no path
+        """
+        ...
 
 
 class Move(Turn[Creature]):
@@ -37,7 +42,10 @@ class Move(Turn[Creature]):
         if target_point is None:
             target_point = get_random_near_points(current_point, entity.speed, world)
 
-        path = self._find_path(current_point, target_point, world)
+        try:
+            path = self._find_path(current_point, target_point, world)
+        except NotFindPathError:
+            return False
 
         if len(path) <= entity.speed:
             world.add(path[-1], entity)

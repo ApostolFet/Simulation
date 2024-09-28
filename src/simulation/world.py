@@ -17,6 +17,11 @@ class World:
         return point.x < self.width and point.y < self.hight
 
     def add(self, point: Point, entity: Entity) -> None:
+        """Adds an entity to the map at the given position.
+        If the entity is already on the map moves it to the given position
+
+        Raises PointAlreadyUsedError if point already used in world
+        """
         current_point = self._map.get(entity)
         if current_point == point:
             return
@@ -33,6 +38,10 @@ class World:
         self._used_points.remove(current_point)
 
     def get_entity_position(self, entity: Entity) -> Point:
+        """Get entity position in the world.
+
+        Raise EntityNotFoundError if the entity is not in the world
+        """
         point = self._map.get(entity)
         if point is None:
             raise EntityNotFoundError
