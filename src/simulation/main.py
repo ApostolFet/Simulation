@@ -5,14 +5,13 @@ from simulation import Simulation
 from simulation.actions import (
     Action,
     IntervalAction,
-    SpawnAction,
+    Spawn,
     TurnAction,
     TurnMap,
 )
 from simulation.config import load_config
-from simulation.controler import Controler
 from simulation.entities import Entity, Grass, Herbivore, Predator, Rock, Tree
-from simulation.factory import (
+from simulation.factories import (
     GrassFactory,
     HerbivoreFactory,
     PredatorFactory,
@@ -22,8 +21,9 @@ from simulation.factory import (
 from simulation.find_path import (
     AStarFindPathStrategy,
 )
-from simulation.renderer import Renderer
-from simulation.state import State
+from simulation.presentation.controler import Controler
+from simulation.presentation.renderer import Renderer
+from simulation.presentation.state import State
 from simulation.turns import Attack, Eat, Move, Starve
 from simulation.world import World
 
@@ -62,21 +62,21 @@ def main() -> None:
     interval_spawn_actions = [
         IntervalAction(
             interval_config.grass.interval,
-            SpawnAction(
+            Spawn(
                 interval_config.grass.count,
                 grass_factory,
             ),
         ),
         IntervalAction(
             interval_config.herbivore.interval,
-            SpawnAction(
+            Spawn(
                 interval_config.herbivore.count,
                 herbivore_factory,
             ),
         ),
         IntervalAction(
             interval_config.predator.interval,
-            SpawnAction(
+            Spawn(
                 interval_config.predator.count,
                 predator_factory,
             ),
@@ -90,11 +90,11 @@ def main() -> None:
 
     init_config = config.spawn.init
     init_actions: list[Action] = [
-        SpawnAction(init_config.predator, predator_factory),
-        SpawnAction(init_config.tree, tree_factory),
-        SpawnAction(init_config.rock, rock_factory),
-        SpawnAction(init_config.grass, grass_factory),
-        SpawnAction(init_config.herbivore, herbivore_factory),
+        Spawn(init_config.predator, predator_factory),
+        Spawn(init_config.tree, tree_factory),
+        Spawn(init_config.rock, rock_factory),
+        Spawn(init_config.grass, grass_factory),
+        Spawn(init_config.herbivore, herbivore_factory),
     ]
 
     state = State()

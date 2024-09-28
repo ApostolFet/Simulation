@@ -1,13 +1,6 @@
-from dataclasses import dataclass
-
 from simulation.entities import Entity
 from simulation.exceptions import EntityNotFoundError, PointAlreadyUsedError
-
-
-@dataclass(frozen=True, order=True)
-class Point:
-    x: int
-    y: int
+from simulation.points import Point
 
 
 class World:

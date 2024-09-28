@@ -1,5 +1,5 @@
-from simulation.renderer import clear_lines
-from simulation.state import State, Status
+from simulation.presentation.console import clear_lines
+from simulation.presentation.state import State, Status
 
 
 class Controler:
