@@ -45,14 +45,17 @@ class Renderer:
         print(render_world)
         print(f"Turn: {turn}")
         print(render_statistic)
-        print("Enter s - to start, p - to pause, b - to back, q - to quit: \r")
+        print(
+            "Enter s - to simulate, p - to pause, "
+            "r - to reverse simulate, q - to quit: \r"
+        )
 
     def end_game(self) -> None:
         print("\rSimulation finished")
 
     def pause_game(self) -> None:
         clear_lines(1)
-        print("Enter s - to start, b - to back, q - to quit: \r")
+        print("Enter s - to simulate, r - to reverse simulate, q - to quit: \r")
 
     def clear_frame(self) -> None:
         clear()

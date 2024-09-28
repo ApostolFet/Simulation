@@ -10,18 +10,18 @@ class Controler:
         try:
             self._get_status_game()
         except KeyboardInterrupt:
-            self._state.status = Status.stop
+            self._state.status = Status.quit
 
     def _get_status_game(self) -> None:
         while True:
             result = input()
             if result == "s":
-                self._state.status = Status.start
+                self._state.status = Status.simulate
             elif result == "p":
                 clear_lines(1)
                 self._state.status = Status.pause
             elif result == "q":
-                self._state.status = Status.stop
+                self._state.status = Status.quit
                 break
-            elif result == "b":
-                self._state.status = Status.back
+            elif result == "r":
+                self._state.status = Status.reverse

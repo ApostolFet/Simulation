@@ -3,12 +3,12 @@ from enum import Enum, auto
 
 
 class Status(Enum):
-    start = auto()
+    simulate = auto()
     pause = auto()
-    stop = auto()
-    back = auto()
+    reverse = auto()
+    quit = auto()
 
 
 @dataclass
 class State:
-    status: Status = Status.start
+    status: Status = Status.simulate

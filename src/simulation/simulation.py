@@ -31,18 +31,18 @@ class Simulation:
         self._renderer.render(self._world, self._turn_number)
         while True:
             match self._state.status:
-                case Status.start:
-                    self.make_turn()
-                case Status.stop:
+                case Status.simulate:
+                    self._simulate()
+                case Status.quit:
                     self._renderer.end_game()
                     break
                 case Status.pause:
                     self._renderer.pause_game()
                     time.sleep(1)
-                case Status.back:
-                    self.undo_turn()
+                case Status.reverse:
+                    self._reverse_simulate()
 
-    def make_turn(self) -> None:
+    def _simulate(self) -> None:
         time.sleep(1)
         turn_action_history: list[Action] = []
         for turn_action in self._turn_actions:
@@ -55,7 +55,7 @@ class Simulation:
 
         self._action_history.append(turn_action_history)
 
-    def undo_turn(self) -> None:
+    def _reverse_simulate(self) -> None:
         self._renderer.render(self._world, self._turn_number)
 
         time.sleep(1)
